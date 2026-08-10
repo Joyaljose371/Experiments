@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reasoning Study</title>
+<style>
+  :root {
+    --paper: #F6F4EF;
+    --ink: #22261F;
+    --ink-soft: #565C4F;
+    --rule: #D8D3C4;
+    --accent: #3E5C3A;
+    --accent-soft: #EAF0E4;
+    --warn: #8A5A3B;
+    --card: #FFFFFF;
+    --mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    line-height: 1.5;
+  }
+  .wrap { width: 100%; max-width: 620px; }
+  .brand {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .brand .phase { color: var(--accent); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 40px 36px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 26px;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 19px;
+    margin: 0 0 14px;
+  }
+  p { color: var(--ink-soft); font-size: 15px; }
+  .rule { border: none; border-top: 1px solid var(--rule); margin: 24px 0; }
+  .syllogism {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--ink);
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 20px 22px;
+    margin: 20px 0;
+  }
+  .syllogism .prem { display: block; }
+  .syllogism .concl {
+    display: block;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #B9C7AF;
+    font-style: italic;
+  }
+  .therefore { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+  .guidance {
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink);
+    background: #FBF3E9;
+    border-left: 3px solid var(--warn);
+    padding: 18px 22px;
+    margin: 20px 0;
+    line-height: 1.6;
+  }
+  .guidance .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warn);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .choices {
+    display: flex;
+    gap: 10px;
+    margin: 22px 0 8px;
+  }
+  .choice-btn {
+    flex: 1;
+    padding: 14px 8px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    border: 1.5px solid var(--rule);
+    background: var(--card);
+    color: var(--ink);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .choice-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .choice-btn.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .confidence-row {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0 4px;
+  }
+  .conf-btn {
+    flex: 1;
+    padding: 10px 4px;
+    font-family: var(--mono);
+    font-size: 13px;
+    border: 1.5px solid var(--rule);
+    background: var(--card);
+    color: var(--ink-soft);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .conf-btn:hover { border-color: var(--accent); }
+  .conf-btn.selected { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .conf-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  label { font-size: 13px; color: var(--ink-soft); display: block; margin: 16px 0 6px; }
+  input[type=text], input[type=number], select {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: var(--sans);
+    font-size: 15px;
+    border: 1.5px solid var(--rule);
+    border-radius: 3px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .primary-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 26px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .primary-btn:disabled { background: #C7C2B4; cursor: not-allowed; }
+  .primary-btn:hover:not(:disabled) { background: var(--accent); }
+  .progress-track {
+    height: 3px;
+    background: var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .checkbox-row { display: flex; align-items: flex-start; gap: 10px; margin: 18px 0; }
+  .checkbox-row input { margin-top: 3px; }
+  .checkbox-row span { font-size: 14px; color: var(--ink-soft); }
+  ul { color: var(--ink-soft); font-size: 14px; padding-left: 18px; }
+  li { margin-bottom: 6px; }
+  .note { font-size: 12px; color: var(--ink-soft); margin-top: 18px; font-style: italic; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 22px 0; }
+  .summary-box { border: 1px solid var(--rule); border-radius: 3px; padding: 16px; }
+  .summary-box .num { font-family: var(--serif); font-size: 28px; color: var(--accent); }
+  .summary-box .lab { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-top: 4px; }
+  .practice-flag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--warn);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span>Reasoning Study</span><span class="phase" id="phaseLabel">Setup</span></div>
+  <div class="card" id="app"></div>
+</div>
+
+<script>
+/* ============================================================
+   DATA — the 38 experimental items and 4 practice items,
+   drawn from the real NeuBAROCO TE90 stimulus set.
+   ============================================================ */
+const EXP_ITEMS = [
+{
+"ID": 596,
+"premises_en": "Some A are B. No B are C.",
+"hypothesis_en": "Some A are not C.",
+"gold": "entailment",
+"content-type": "symbolic",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 659,
+"premises_en": "Some C are B. All B are A.",
+"hypothesis_en": "Some C are A.",
+"gold": "entailment",
+"content-type": "symbolic",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 239,
+"premises_en": "Some police officers are men. All police officers are civil servants.",
+"hypothesis_en": "Some man is a civil servant.",
+"gold": "entailment",
+"content-type": "congruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 223,
+"premises_en": "No women are men. Some students are women.",
+"hypothesis_en": "Some students are not male.",
+"gold": "entailment",
+"content-type": "congruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 105,
+"premises_en": "All animals are living things. Some humans are not living things.",
+"hypothesis_en": "Some humans are not animals.",
+"gold": "entailment",
+"content-type": "incongruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 111,
+"premises_en": "All human beings are kind. No doctor is kind.",
+"hypothesis_en": "No doctors are human beings.",
+"gold": "entailment",
+"content-type": "incongruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 101,
+"premises_en": "All robots are machines. Some robots are not commodities.",
+"hypothesis_en": "Some machines are not commodities.",
+"gold": "entailment",
+"content-type": "congruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 619,
+"premises_en": "All A are B. No C are B.",
+"hypothesis_en": "No A are C.",
+"gold": "entailment",
+"content-type": "symbolic",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 232,
+"premises_en": "All metals are liquids. Some metals are stones.",
+"hypothesis_en": "Some stones are liquid.",
+"gold": "entailment",
+"content-type": "incongruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 615,
+"premises_en": "Some A are not B. All C are B.",
+"hypothesis_en": "Some A are not C.",
+"gold": "entailment",
+"content-type": "symbolic",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 755,
+"premises_en": "All clerks are male. Some women are clerks.",
+"hypothesis_en": "Some women are men.",
+"gold": "entailment",
+"content-type": "incongruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 55,
+"premises_en": "None of Lisa's friends are Japanese. One friend of Taro is a friend of Lisa's.",
+"hypothesis_en": "A certain friend of Taro's is not Japanese.",
+"gold": "entailment",
+"content-type": "congruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 608,
+"premises_en": "All A are B. No B are C.",
+"hypothesis_en": "All A are C.",
+"gold": "contradiction",
+"content-type": "symbolic",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 657,
+"premises_en": "No C are B. All A are B.",
+"hypothesis_en": "Some A are C.",
+"gold": "contradiction",
+"content-type": "symbolic",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 73,
+"premises_en": "None of Lisa's friends are Japanese. All of Taro's friends are friends of Lisa.",
+"hypothesis_en": "All of Taro's friends are Japanese.",
+"gold": "contradiction",
+"content-type": "congruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 110,
+"premises_en": "All human beings are kind. No doctor is kind.",
+"hypothesis_en": "Some doctor is a human being.",
+"gold": "contradiction",
+"content-type": "congruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 146,
+"premises_en": "Every fruit is food. No food is a stone.",
+"hypothesis_en": "Some fruits are stones.",
+"gold": "contradiction",
+"content-type": "incongruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 144,
+"premises_en": "All canines are animals. All animals are robots.",
+"hypothesis_en": "No canine is a robot.",
+"gold": "contradiction",
+"content-type": "incongruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 52,
+"premises_en": "No allies of the Slug Republic are allies of the Frog Empire. All allies of the State of Candy are allies of the Slug Republic.",
+"hypothesis_en": "All allies of the State of Candy are allies of the Frog Empire.",
+"gold": "contradiction",
+"content-type": "congruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 667,
+"premises_en": "All C are B. All B are A.",
+"hypothesis_en": "No C are A.",
+"gold": "contradiction",
+"content-type": "symbolic",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 140,
+"premises_en": "Every bird is not a crocodile. All crows are birds.",
+"hypothesis_en": "Some crocodiles are crows.",
+"gold": "contradiction",
+"content-type": "incongruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 617,
+"premises_en": "All A are B. No C are B.",
+"hypothesis_en": "All A are C.",
+"gold": "contradiction",
+"content-type": "symbolic",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 117,
+"premises_en": "All living things are robots. All cats are living things.",
+"hypothesis_en": "No cat is a robot.",
+"gold": "contradiction",
+"content-type": "incongruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 51,
+"premises_en": "All friends of Paul are German. All friends of Taro are friends of Paul.",
+"hypothesis_en": "None of Taro's friends are German.",
+"gold": "contradiction",
+"content-type": "congruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 97,
+"premises_en": "All metals are liquids. Some metals are stones.",
+"hypothesis_en": "All stones are liquid.",
+"gold": "neutral",
+"content-type": "incongruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 611,
+"premises_en": "Some B are A. No B are C.",
+"hypothesis_en": "Some A are C.",
+"gold": "neutral",
+"content-type": "symbolic",
+"list": "B",
+"conversion": "no",
+"atmosphere": "yes"
+},
+{
+"ID": 666,
+"premises_en": "All C are B. All B are A.",
+"hypothesis_en": "All A are C.",
+"gold": "neutral",
+"content-type": "symbolic",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 90,
+"premises_en": "Some teacher is male. No men are women.",
+"hypothesis_en": "Some teacher is a woman.",
+"gold": "neutral",
+"content-type": "congruent",
+"list": "B",
+"conversion": "no",
+"atmosphere": "yes"
+},
+{
+"ID": 646,
+"premises_en": "No B are C. Some A are B.",
+"hypothesis_en": "Some A are C.",
+"gold": "neutral",
+"content-type": "symbolic",
+"list": "B",
+"conversion": "no",
+"atmosphere": "yes"
+},
+{
+"ID": 249,
+"premises_en": "Every sparrow is a bird. No stone is a sparrow.",
+"hypothesis_en": "No bird is a stone.",
+"gold": "neutral",
+"content-type": "congruent",
+"list": "B",
+"conversion": "yes",
+"atmosphere": "no"
+},
+{
+"ID": 103,
+"premises_en": "All animals are living things. Some humans are not living things.",
+"hypothesis_en": "Some animal is a human being.",
+"gold": "neutral",
+"content-type": "incongruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "yes"
+},
+{
+"ID": 47,
+"premises_en": "All clients of the Dog Corporation are clients of the Whale Corporation. Certain clients of the Cat Company are clients of the Dog Corporation.",
+"hypothesis_en": "All of the Cat Company's clients are clients of the Whale Corporation.",
+"gold": "neutral",
+"content-type": "congruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "no"
+},
+{
+"ID": 214,
+"premises_en": "Every sparrow is a bird. No crow is a sparrow.",
+"hypothesis_en": "No birds are crows.",
+"gold": "neutral",
+"content-type": "incongruent",
+"list": "B",
+"conversion": "yes",
+"atmosphere": "no"
+},
+{
+"ID": 40,
+"premises_en": "Certain friends of Taro are not German. All of Paul's friends are German.",
+"hypothesis_en": "One friend of Taro is a friend of Paul's.",
+"gold": "neutral",
+"content-type": "congruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "yes"
+},
+{
+"ID": 233,
+"premises_en": "Some metals are water. All iron is metal.",
+"hypothesis_en": "Some iron is water.",
+"gold": "neutral",
+"content-type": "incongruent",
+"list": "A",
+"conversion": "yes",
+"atmosphere": "yes"
+},
+{
+"ID": 598,
+"premises_en": "Some A are B. No B are C.",
+"hypothesis_en": "Some A are C.",
+"gold": "neutral",
+"content-type": "symbolic",
+"list": "A",
+"conversion": "no",
+"atmosphere": "yes"
+},
+{
+"ID": 653,
+"premises_en": "Some B are not C. All B are A.",
+"hypothesis_en": "Some A are C.",
+"gold": "neutral",
+"content-type": "symbolic",
+"list": "A",
+"conversion": "no",
+"atmosphere": "yes"
+},
+{
+"ID": 212,
+"premises_en": "No citizen of Paris is a citizen of Tokyo. Some Tokyo citizen is a human being.",
+"hypothesis_en": "Some Parisian citizen is not a human being.",
+"gold": "neutral",
+"content-type": "incongruent",
+"list": "A",
+"conversion": "no",
+"atmosphere": "yes"
+}
+];
+const PRACTICE_ITEMS = [
+{
+"ID": 648,
+"premises_en": "No B are C. Some B are A.",
+"hypothesis_en": "Some A are not C.",
+"gold": "entailment",
+"content-type": "symbolic"
+},
+{
+"ID": 139,
+"premises_en": "Every bird is not a crocodile. All crows are birds.",
+"hypothesis_en": "All crocodiles are crows.",
+"gold": "contradiction",
+"content-type": "incongruent"
+},
+{
+"ID": 624,
+"premises_en": "All B are A. All C are B.",
+"hypothesis_en": "All A are C.",
+"gold": "neutral",
+"content-type": "symbolic"
+},
+{
+"ID": 649,
+"premises_en": "No B are C. Some B are A.",
+"hypothesis_en": "No A are C.",
+"gold": "neutral",
+"content-type": "symbolic"
+}
+];
+
+const GUIDANCE_TEXT = "Before deciding, test whether the conclusion must be true whenever the premises are true. Try to construct a possible situation in which all the premises remain true but the conclusion is false. If such a counterexample is possible, the conclusion does not logically follow. If no counterexample is possible, reconsider whether the premises force the conclusion.";
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  screen: "consent",
+  participant: {
+    code: "P-" + Math.random().toString(36).slice(2, 8).toUpperCase(),
+    age: "", education: "", englishComfort: "", aiUse: ""
+  },
+  group: null,        // "AI_List_A" or "AI_List_B" -> which list gets AI guidance
+  order: null,         // "NoAI_first" or "AI_first"
+  practiceIndex: 0,
+  practiceTrial: { phase: "initial", answer: null, confidence: null, startTime: null },
+  blocks: [],          // [{condition:"NoAI"|"AI", items:[...]}, {...}]
+  blockIndex: 0,
+  trialIndex: 0,
+  trialPhase: "initial", // "initial" | "guidance" | "final"
+  currentTrialData: {},
+  trialStartTime: null,
+  results: []           // final exported rows
+};
+
+function assignGroup() {
+  const listForAI = Math.random() < 0.5 ? "A" : "B";
+  const aiFirst = Math.random() < 0.5;
+  state.group = listForAI; // which list is shown under AI guidance
+  state.order = aiFirst ? "AI_first" : "NoAI_first";
+
+  const listA = EXP_ITEMS.filter(i => i.list === "A");
+  const listB = EXP_ITEMS.filter(i => i.list === "B");
+  const aiItems = shuffle(listForAI === "A" ? listA : listB);
+  const noAiItems = shuffle(listForAI === "A" ? listB : listA);
+
+  const aiBlock = { condition: "AI", items: aiItems };
+  const noAiBlock = { condition: "NoAI", items: noAiItems };
+  state.blocks = aiFirst ? [aiBlock, noAiBlock] : [noAiBlock, aiBlock];
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function scoreAnswer(answer, gold) { return answer === gold ? 1 : 0; }
+
+function classifyRevision(initial, final, gold) {
+  if (initial === final) return "none";
+  const wasCorrect = initial === gold;
+  const isCorrect = final === gold;
+  if (!wasCorrect && isCorrect) return "beneficial";
+  if (wasCorrect && !isCorrect) return "harmful";
+  return "lateral";
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const app = document.getElementById("app");
+const phaseLabel = document.getElementById("phaseLabel");
+
+function render() {
+  if (state.screen === "consent") return renderConsent();
+  if (state.screen === "participantInfo") return renderParticipantInfo();
+  if (state.screen === "instructions") return renderInstructions();
+  if (state.screen === "practice") return renderPractice();
+  if (state.screen === "practiceDone") return renderPracticeDone();
+  if (state.screen === "blockIntro") return renderBlockIntro();
+  if (state.screen === "trial") return renderTrial();
+  if (state.screen === "done") return renderDone();
+}
+
+function renderConsent() {
+  phaseLabel.textContent = "Consent";
+  app.innerHTML = `
+    <h1>Before we begin</h1>
+    <p>This is a short study about how people solve logical reasoning problems, sometimes with a standardized hint and sometimes without one.</p>
+    <hr class="rule">
+    <ul>
+      <li>Your participation is voluntary — you may stop at any time.</li>
+      <li>The task takes about 15–20 minutes.</li>
+      <li>No name, email, or other identifying information is collected — only an anonymous participant code.</li>
+      <li>Your results are stored only in this browser tab and are exported as a file you control at the end.</li>
+    </ul>
+    <div class="checkbox-row">
+      <input type="checkbox" id="consentCheck">
+      <span>I am 18 years of age or older, and I consent to take part in this study.</span>
+    </div>
+    <button class="primary-btn" id="consentBtn" disabled>Continue</button>
+  `;
+  document.getElementById("consentCheck").addEventListener("change", e => {
+    document.getElementById("consentBtn").disabled = !e.target.checked;
+  });
+  document.getElementById("consentBtn").addEventListener("click", () => {
+    state.screen = "participantInfo";
+    render();
+  });
+}
+
+function renderParticipantInfo() {
+  phaseLabel.textContent = "Setup";
+  app.innerHTML = `
+    <h1>A few quick details</h1>
+    <p>Your anonymous participant code: <strong>${state.participant.code}</strong></p>
+    <label for="age">Age</label>
+    <input type="number" id="age" min="18" max="100" placeholder="e.g. 24">
+    <label for="education">Highest level of education</label>
+    <select id="education">
+      <option value="">Select one</option>
+      <option>High school</option>
+      <option>Undergraduate</option>
+      <option>Postgraduate</option>
+      <option>Other</option>
+    </select>
+    <label for="english">Comfort reading English (1 = not comfortable, 5 = fully fluent)</label>
+    <select id="english">
+      <option value="">Select one</option>
+      <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+      <option value="4">4</option><option value="5">5</option>
+    </select>
+    <label for="aiuse">How often do you currently use AI tools (e.g. ChatGPT)?</label>
+    <select id="aiuse">
+      <option value="">Select one</option>
+      <option>Never</option><option>Rarely</option><option>Sometimes</option>
+      <option>Often</option><option>Daily</option>
+    </select>
+    <button class="primary-btn" id="infoBtn">Continue</button>
+  `;
+  document.getElementById("infoBtn").addEventListener("click", () => {
+    state.participant.age = document.getElementById("age").value;
+    state.participant.education = document.getElementById("education").value;
+    state.participant.englishComfort = document.getElementById("english").value;
+    state.participant.aiUse = document.getElementById("aiuse").value;
+    state.screen = "instructions";
+    render();
+  });
+}
+
+function renderInstructions() {
+  phaseLabel.textContent = "Instructions";
+  app.innerHTML = `
+    <h1>How this works</h1>
+    <p>On each trial you'll see two statements (the premises) and a possible conclusion. Decide whether the conclusion:</p>
+    <ul>
+      <li><strong>Entailment</strong> — it must be true, given the premises.</li>
+      <li><strong>Contradiction</strong> — it must be false, given the premises.</li>
+      <li><strong>Neutral</strong> — it isn't determined either way by the premises.</li>
+    </ul>
+    <div class="syllogism">
+      <span class="prem">All B are C. All A are B.</span>
+      <span class="concl">→ All A are C.</span>
+    </div>
+    <p>Here the conclusion must be true, so the correct answer is <strong>Entailment</strong>.</p>
+    <hr class="rule">
+    <p>After each answer, you'll also rate how confident you are, from 1 (very unsure) to 6 (very sure).</p>
+    <p>On some trials, after your first answer you'll see a short hint, then get a chance to reconsider and give a final answer. On other trials there is no hint — your first answer is final.</p>
+    <p>You'll start with 4 practice trials.</p>
+    <button class="primary-btn" id="startPracticeBtn">Start practice</button>
+  `;
+  document.getElementById("startPracticeBtn").addEventListener("click", () => {
+    state.screen = "practice";
+    state.practiceTrial = { phase: "initial", answer: null, confidence: null };
+    state.trialStartTime = Date.now();
+    render();
+  });
+}
+
+function renderChoiceButtons(selected, onPick) {
+  const opts = ["entailment", "contradiction", "neutral"];
+  const labels = { entailment: "Entailment", contradiction: "Contradiction", neutral: "Neutral" };
+  const div = document.createElement("div");
+  div.className = "choices";
+  opts.forEach(o => {
+    const b = document.createElement("button");
+    b.className = "choice-btn" + (selected === o ? " selected" : "");
+    b.textContent = labels[o];
+    b.addEventListener("click", () => onPick(o));
+    div.appendChild(b);
+  });
+  return div;
+}
+
+function renderConfidenceRow(selected, onPick) {
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `<div class="conf-labels"><span>Very unsure</span><span>Very sure</span></div>`;
+  const row = document.createElement("div");
+  row.className = "confidence-row";
+  for (let i = 1; i <= 6; i++) {
+    const b = document.createElement("button");
+    b.className = "conf-btn" + (selected === i ? " selected" : "");
+    b.textContent = i;
+    b.addEventListener("click", () => onPick(i));
+    row.appendChild(b);
+  }
+  wrap.appendChild(row);
+  return wrap;
+}
+
+function renderSyllogism(item) {
+  const div = document.createElement("div");
+  div.className = "syllogism";
+  div.innerHTML = `<span class="prem">${item.premises_en}</span><span class="concl">→ ${item.hypothesis_en}</span>`;
+  return div;
+}
+
+function renderPractice() {
+  phaseLabel.textContent = `Practice ${state.practiceIndex + 1} / ${PRACTICE_ITEMS.length}`;
+  const item = PRACTICE_ITEMS[state.practiceIndex];
+  app.innerHTML = "";
+
+  const flag = document.createElement("div");
+  flag.className = "practice-flag";
+  flag.textContent = "Practice — not scored";
+  app.appendChild(flag);
+
+  const h = document.createElement("h2");
+  h.textContent = "Does the conclusion follow?";
+  app.appendChild(h);
+
+  app.appendChild(renderSyllogism(item));
+
+  const choices = renderChoiceButtons(state.practiceTrial.answer, (val) => {
+    state.practiceTrial.answer = val;
+    render();
+  });
+  app.appendChild(choices);
+
+  const confLabel = document.createElement("label");
+  confLabel.textContent = "How confident are you?";
+  app.appendChild(confLabel);
+  app.appendChild(renderConfidenceRow(state.practiceTrial.confidence, (val) => {
+    state.practiceTrial.confidence = val;
+    render();
+  }));
+
+  const btn = document.createElement("button");
+  btn.className = "primary-btn";
+  btn.textContent = state.practiceIndex < PRACTICE_ITEMS.length - 1 ? "Next" : "Finish practice";
+  btn.disabled = !(state.practiceTrial.answer && state.practiceTrial.confidence);
+  btn.addEventListener("click", () => {
+    state.practiceIndex++;
+    if (state.practiceIndex >= PRACTICE_ITEMS.length) {
+      state.screen = "practiceDone";
+    } else {
+      state.practiceTrial = { phase: "initial", answer: null, confidence: null };
+    }
+    render();
+  });
+  app.appendChild(btn);
+}
+
+function renderPracticeDone() {
+  phaseLabel.textContent = "Practice complete";
+  app.innerHTML = `
+    <h1>Practice complete</h1>
+    <p>Now the main task begins: ${EXP_ITEMS.length} trials, in two parts. In one part you'll get a hint and a chance to reconsider; in the other you won't.</p>
+    <p>Please try to work through this in one sitting.</p>
+    <button class="primary-btn" id="beginMainBtn">Begin</button>
+  `;
+  document.getElementById("beginMainBtn").addEventListener("click", () => {
+    assignGroup();
+    state.blockIndex = 0;
+    state.trialIndex = 0;
+    state.screen = "blockIntro";
+    render();
+  });
+}
+
+function renderBlockIntro() {
+  const block = state.blocks[state.blockIndex];
+  phaseLabel.textContent = `Part ${state.blockIndex + 1} of 2`;
+  const withHint = block.condition === "AI";
+  app.innerHTML = `
+    <h1>Part ${state.blockIndex + 1}</h1>
+    <p>${withHint
+      ? "In this part, after your first answer you will see a short hint, then be asked to reconsider before giving a final answer."
+      : "In this part, you will give one answer per problem — there is no hint or reconsideration stage."}</p>
+    <p>${block.items.length} problems in this part.</p>
+    <button class="primary-btn" id="startBlockBtn">Start</button>
+  `;
+  document.getElementById("startBlockBtn").addEventListener("click", () => {
+    state.trialPhase = "initial";
+    state.currentTrialData = {};
+    state.trialStartTime = Date.now();
+    state.screen = "trial";
+    render();
+  });
+}
+
+function renderTrial() {
+  const block = state.blocks[state.blockIndex];
+  const item = block.items[state.trialIndex];
+  const isAI = block.condition === "AI";
+  const totalTrials = EXP_ITEMS.length;
+  const completedSoFar = state.blockIndex * (EXP_ITEMS.length / 2) + state.trialIndex;
+
+  phaseLabel.textContent = `Trial ${completedSoFar + 1} / ${totalTrials}`;
+
+  app.innerHTML = "";
+
+  const bar = document.createElement("div");
+  bar.className = "progress-track";
+  bar.innerHTML = `<div class="progress-fill" style="width:${(completedSoFar / totalTrials) * 100}%"></div>`;
+  app.appendChild(bar);
+
+  const h = document.createElement("h2");
+  h.textContent = state.trialPhase === "final" ? "Your final answer" : "Does the conclusion follow?";
+  app.appendChild(h);
+
+  app.appendChild(renderSyllogism(item));
+
+  if (state.trialPhase === "guidance") {
+    const g = document.createElement("div");
+    g.className = "guidance";
+    g.innerHTML = `<span class="tag">Hint</span>${GUIDANCE_TEXT}`;
+    app.appendChild(g);
+
+    const btn = document.createElement("button");
+    btn.className = "primary-btn";
+    btn.textContent = "Reconsider and answer";
+    btn.addEventListener("click", () => {
+      state.trialPhase = "final";
+      state.trialStartTime = Date.now();
+      render();
+    });
+    app.appendChild(btn);
+    return;
+  }
+
+  const answerKey = state.trialPhase === "final" ? "finalAnswer" : "initialAnswer";
+  const confKey = state.trialPhase === "final" ? "finalConfidence" : "initialConfidence";
+
+  const choices = renderChoiceButtons(state.currentTrialData[answerKey], (val) => {
+    state.currentTrialData[answerKey] = val;
+    render();
+  });
+  app.appendChild(choices);
+
+  const confLabel = document.createElement("label");
+  confLabel.textContent = "How confident are you?";
+  app.appendChild(confLabel);
+  app.appendChild(renderConfidenceRow(state.currentTrialData[confKey], (val) => {
+    state.currentTrialData[confKey] = val;
+    render();
+  }));
+
+  const ready = state.currentTrialData[answerKey] && state.currentTrialData[confKey];
+  const btn = document.createElement("button");
+  btn.className = "primary-btn";
+  btn.disabled = !ready;
+
+  if (state.trialPhase === "initial") {
+    btn.textContent = isAI ? "Continue" : "Next";
+    btn.addEventListener("click", () => {
+      state.currentTrialData.initialRT = Date.now() - state.trialStartTime;
+      if (isAI) {
+        state.trialPhase = "guidance";
+      } else {
+        state.currentTrialData.finalAnswer = state.currentTrialData.initialAnswer;
+        state.currentTrialData.finalConfidence = state.currentTrialData.initialConfidence;
+        state.currentTrialData.finalRT = null;
+        finishTrial(item, block);
+        return;
+      }
+      render();
+    });
+  } else {
+    btn.textContent = "Next";
+    btn.addEventListener("click", () => {
+      state.currentTrialData.finalRT = Date.now() - state.trialStartTime;
+      finishTrial(item, block);
+    });
+  }
+  app.appendChild(btn);
+}
+
+function finishTrial(item, block) {
+  const d = state.currentTrialData;
+  const gold = item.gold;
+  const accInitial = scoreAnswer(d.initialAnswer, gold);
+  const accFinal = scoreAnswer(d.finalAnswer, gold);
+  const changed = d.initialAnswer !== d.finalAnswer;
+  const revisionType = block.condition === "AI" ? classifyRevision(d.initialAnswer, d.finalAnswer, gold) : "n/a_no_ai";
+
+  state.results.push({
+    participant_code: state.participant.code,
+    age: state.participant.age,
+    education: state.participant.education,
+    english_comfort: state.participant.englishComfort,
+    ai_use_frequency: state.participant.aiUse,
+    group_ai_list: state.group,
+    block_order: state.order,
+    is_practice: 0,
+    item_id: item.ID,
+    gold_label: gold,
+    content_type: item["content-type"],
+    conversion_item: item.conversion || "no",
+    atmosphere_item: item.atmosphere || "no",
+    condition: block.condition,
+    block_position: state.blockIndex + 1,
+    trial_index_in_block: state.trialIndex + 1,
+    initial_answer: d.initialAnswer,
+    initial_confidence: d.initialConfidence,
+    initial_rt_ms: d.initialRT,
+    guidance_shown: block.condition === "AI" ? 1 : 0,
+    final_answer: d.finalAnswer,
+    final_confidence: d.finalConfidence,
+    final_rt_ms: d.finalRT,
+    accuracy_initial: accInitial,
+    accuracy_final: accFinal,
+    answer_changed: changed ? 1 : 0,
+    revision_type: revisionType
+  });
+
+  state.trialIndex++;
+  if (state.trialIndex >= block.items.length) {
+    state.blockIndex++;
+    state.trialIndex = 0;
+    if (state.blockIndex >= state.blocks.length) {
+      state.screen = "done";
+    } else {
+      state.screen = "blockIntro";
+    }
+  } else {
+    state.trialPhase = "initial";
+    state.currentTrialData = {};
+    state.trialStartTime = Date.now();
+    state.screen = "trial";
+  }
+  render();
+}
+
+function renderDone() {
+  phaseLabel.textContent = "Complete";
+  const rows = state.results;
+  const n = rows.length;
+  const accByCondition = { AI: [], NoAI: [] };
+  const confByCondition = { AI: [], NoAI: [] };
+  rows.forEach(r => {
+    accByCondition[r.condition].push(r.accuracy_final);
+    confByCondition[r.condition].push(r.final_confidence);
+  });
+  const mean = arr => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
+  const accAI = (mean(accByCondition.AI) * 100).toFixed(0);
+  const accNoAI = (mean(accByCondition.NoAI) * 100).toFixed(0);
+  const confAI = mean(confByCondition.AI).toFixed(1);
+  const confNoAI = mean(confByCondition.NoAI).toFixed(1);
+
+  app.innerHTML = `
+    <h1>Thank you</h1>
+    <p>You've completed the study. Here's a quick summary of your own results — this is just for you, not a judgment of performance.</p>
+    <div class="summary-grid">
+      <div class="summary-box"><div class="num">${accNoAI}%</div><div class="lab">Accuracy — No hint</div></div>
+      <div class="summary-box"><div class="num">${accAI}%</div><div class="lab">Accuracy — With hint</div></div>
+      <div class="summary-box"><div class="num">${confNoAI}</div><div class="lab">Confidence — No hint</div></div>
+      <div class="summary-box"><div class="num">${confAI}</div><div class="lab">Confidence — With hint</div></div>
+    </div>
+    <hr class="rule">
+    <p><strong>Debrief:</strong> the "hint" shown in this study was a fixed, standardized piece of text — not a live AI system, and it never revealed the correct answer directly. It was designed this way to keep the assistance identical for everyone taking part.</p>
+    <button class="primary-btn" id="downloadBtn">Download results (CSV)</button>
+    <p class="note">Your data (${n} trial rows) is only in this browser tab. Downloading is the only way to keep it.</p>
+  `;
+  document.getElementById("downloadBtn").addEventListener("click", downloadCSV);
+}
+
+function downloadCSV() {
+  const rows = state.results;
+  if (!rows.length) return;
+  const headers = Object.keys(rows[0]);
+  const lines = [headers.join(",")];
+  rows.forEach(r => {
+    lines.push(headers.map(h => {
+      const v = r[h] === null || r[h] === undefined ? "" : r[h];
+      const s = String(v).replace(/"/g, '""');
+      return /[,"\n]/.test(s) ? `"${s}"` : s;
+    }).join(","));
+  });
+  const csv = lines.join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `syllogism_study_${state.participant.code}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+render();
+</script>
+</body>
+</html>
