@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI-Assisted Syllogistic Reasoning Study</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#dfe4ec;--accent:#4056c6;--soft:#eef2ff;--ok:#18794e;--warn:#8a5a00}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:820px;margin:auto;padding:22px 16px 55px} .top{font-weight:800;margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 8px 28px rgba(20,30,60,.05)}
+.progress{height:7px;background:#e8ecf3;border-radius:20px;overflow:hidden;margin-bottom:20px} .bar{height:100%;background:var(--accent);width:0}
+h1{font-size:27px;line-height:1.2;margin:0 0 10px} h2{font-size:21px;margin:0 0 12px} h3{font-size:16px;margin:20px 0 9px}
+p,li{line-height:1.65} .muted{color:var(--muted)} .small{font-size:13px}
+.notice{background:#fff8e6;border:1px solid #eed38a;padding:13px 15px;border-radius:12px}
+.success{background:#effaf3;border:1px solid #b9dfc7;padding:13px 15px;border-radius:12px}
+.field{margin:16px 0} .field label{display:block;font-weight:700;margin-bottom:7px}
+input[type=text],input[type=number],select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:15px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center} .right{justify-content:flex-end}
+.btn{border:0;background:var(--accent);color:#fff;padding:12px 18px;border-radius:11px;font-weight:750;cursor:pointer}
+.btn.secondary{background:#fff;color:var(--text);border:1px solid var(--line)} .btn:disabled{opacity:.45;cursor:not-allowed}
+.check{display:flex;gap:9px;margin:17px 0} .check input{margin-top:5px}
+.stimulus{margin:20px 0} .premises{background:#f8f9fc;border:1px solid var(--line);border-radius:14px;padding:18px;font-size:17px;line-height:1.75}
+.conclusion{margin-top:13px;padding:15px 17px;border-left:4px solid var(--accent);background:var(--soft);border-radius:0 12px 12px 0;font-size:17px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px} .choice{position:relative} .choice input{position:absolute;opacity:0}
+.choice label{display:block;padding:14px;text-align:center;border:1px solid var(--line);border-radius:11px;font-weight:750;cursor:pointer;background:#fff}
+.choice input:checked+label{border-color:var(--accent);background:var(--soft)}
+.scale{display:grid;grid-template-columns:repeat(6,1fr);gap:7px} .scale label{position:relative} .scale input{position:absolute;opacity:0}
+.scale span{display:block;text-align:center;padding:11px 3px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:750}
+.scale input:checked+span{border-color:var(--accent);background:var(--soft)}
+.ai{margin:20px 0;padding:20px;border:1px solid #ccd5ff;background:#f7f8ff;border-radius:16px}
+.aihead{font-weight:800;color:#3047a7;margin-bottom:8px} .aiq{font-size:16px;line-height:1.7}
+.progress-note{display:flex;justify-content:space-between;margin-bottom:8px}
+hr{border:0;border-top:1px solid var(--line);margin:24px 0}
+@media(max-width:600px){.card{padding:19px}.grid{grid-template-columns:1fr}.scale span{font-size:13px}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">AI × Cognition Research</div>
+<div class="progress"><div id="bar" class="bar"></div></div>
+<div id="app" class="card"></div>
+</div>
+<script>
+const STIMULI=[{"id": 101, "premises": "All robots are machines. Some robots are not commodities.", "conclusion": "Some machines are not commodities.", "gold": "entailment", "contentType": "congruent", "cell": "Entailment × Congruent", "mood": "AOO", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 125, "premises": "No bird are canines. Some birds are pets.", "conclusion": "Certain pets are not canines.", "gold": "entailment", "contentType": "congruent", "cell": "Entailment × Congruent", "mood": "EIO", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 215, "premises": "Every tree is a plant. All plants are living things.", "conclusion": "All trees are living things.", "gold": "entailment", "contentType": "congruent", "cell": "Entailment × Congruent", "mood": "AAA", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 216, "premises": "Some baseball teams are professional teams. All professional teams are famous.", "conclusion": "Some baseball teams are famous.", "gold": "entailment", "contentType": "congruent", "cell": "Entailment × Congruent", "mood": "IAI", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 223, "premises": "No women are men. Some students are women.", "conclusion": "Some students are not male.", "gold": "entailment", "contentType": "congruent", "cell": "Entailment × Congruent", "mood": "EIO", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 44, "premises": "All allies of the Frog Empire are allies of the Slug Republic. No allies of the State of Candy are allies of the Slug Rebublic.", "conclusion": "Certain allies of the Frog Empire are allies of the State of Candy.", "gold": "contradiction", "contentType": "congruent", "cell": "Contradiction × Congruent", "mood": "AEI", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 51, "premises": "All friends of Paul are German. All friends of Taro are friends of Paul.", "conclusion": "None of Taro's friends are German.", "gold": "contradiction", "contentType": "congruent", "cell": "Contradiction × Congruent", "mood": "AAE", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 52, "premises": "No allies of the Slug Republic are allies of the Frog Empire. All allies of the State of Candy are allies of the Slug Republic.", "conclusion": "All allies of the State of Candy are allies of the Frog Empire.", "gold": "contradiction", "contentType": "congruent", "cell": "Contradiction × Congruent", "mood": "EAA", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 73, "premises": "None of Lisa's friends are Japanese. All of Taro's friends are friends of Lisa.", "conclusion": "All of Taro's friends are Japanese.", "gold": "contradiction", "contentType": "congruent", "cell": "Contradiction × Congruent", "mood": "EAA", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 110, "premises": "All human beings are kind. No doctor is kind.", "conclusion": "Some doctor is a human being.", "gold": "contradiction", "contentType": "congruent", "cell": "Contradiction × Congruent", "mood": "AEI", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 98, "premises": "All metals are liquids. Some metals are stones.", "conclusion": "Some stones are liquid.", "gold": "entailment", "contentType": "incongruent", "cell": "Entailment × Incongruent", "mood": "AII", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 105, "premises": "All animals are living things. Some humans are not living things.", "conclusion": "Some humans are not animals.", "gold": "entailment", "contentType": "incongruent", "cell": "Entailment × Incongruent", "mood": "AOO", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 202, "premises": "All pigeons are birds. Some pigeons are cats.", "conclusion": "Some birds are cats.", "gold": "entailment", "contentType": "incongruent", "cell": "Entailment × Incongruent", "mood": "AII", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 231, "premises": "Some animals are human beings. All animals are tomatoes.", "conclusion": "Some humans are tomatoes.", "gold": "entailment", "contentType": "incongruent", "cell": "Entailment × Incongruent", "mood": "IAI", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 755, "premises": "All clerks are male. Some women are clerks.", "conclusion": "Some women are men.", "gold": "entailment", "contentType": "incongruent", "cell": "Entailment × Incongruent", "mood": "AII", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 92, "premises": "All humans are mammals. No mammal is a crocodile.", "conclusion": "Some crocodiles are human.", "gold": "contradiction", "contentType": "incongruent", "cell": "Contradiction × Incongruent", "mood": "AEI", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 117, "premises": "All living things are robots. All cats are living things.", "conclusion": "No cat is a robot.", "gold": "contradiction", "contentType": "incongruent", "cell": "Contradiction × Incongruent", "mood": "AAE", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 118, "premises": "No food is a book. All fruits are food.", "conclusion": "Every fruit is a book.", "gold": "contradiction", "contentType": "incongruent", "cell": "Contradiction × Incongruent", "mood": "EAA", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 140, "premises": "Every bird is not a crocodile. All crows are birds.", "conclusion": "Some crocodiles are crows.", "gold": "contradiction", "contentType": "incongruent", "cell": "Contradiction × Incongruent", "mood": "EAI", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}, {"id": 146, "premises": "Every fruit is food. No food is a stone.", "conclusion": "Some fruits are stones.", "gold": "contradiction", "contentType": "incongruent", "cell": "Contradiction × Incongruent", "mood": "AEI", "inferenceType": "syllogism", "conversion": "no", "atmosphere": "no"}];
+const PRACTICE=[
+{premises:"All dogs are animals. All animals are living things.",conclusion:"All dogs are living things.",gold:"entailment"},
+{premises:"No birds are mammals. All sparrows are birds.",conclusion:"Some sparrows are mammals.",gold:"contradiction"},
+{premises:"All teachers are educated people. Some educated people are musicians.",conclusion:"Some teachers are musicians.",gold:"contradiction"},
+{premises:"All roses are flowers. Some roses are red.",conclusion:"Some flowers are red.",gold:"entailment"}
+];
+
+let S={
+ screen:"consent",pid:"",age:"",education:"",english:"",aiUse:"",
+ trials:[],i:0,sessionStart:new Date(),trialStart:0,aiStart:0
+};
+const app=document.getElementById("app"),bar=document.getElementById("bar");
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function progress(p){bar.style.width=Math.max(0,Math.min(100,p))+"%";}
+function shuffle(a,seed){let b=a.slice(),x=seed>>>0;for(let i=b.length-1;i>0;i--){x=(x*1664525+1013904223)>>>0;let j=x%(i+1);[b[i],b[j]]=[b[j],b[i]]}return b}
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i)|0;return Math.abs(h)}
+function answerLabel(a){return a==="entailment"?"Entailment":"Contradiction"}
+
+function consent(){
+progress(3);
+app.innerHTML=`
+<h1>Research Study</h1>
+<p><strong>The Influence of AI-Assisted Feedback on Reasoning Accuracy and Confidence in Syllogistic Reasoning: An Experimental Study</strong></p>
+<p>This study examines how structured AI-assisted reasoning guidance may influence reasoning accuracy, confidence, and response revision.</p>
+<div class="notice"><strong>Research prototype:</strong> This interface is for approved research use only. Do not collect participant data until ethics/departmental approval, final stimulus verification, consent/debrief materials, and the analysis plan are approved.</div>
+<div class="check"><input id="ok" type="checkbox"><label for="ok">I have read the participant information and voluntarily agree to take part. I understand I may stop before submitting my responses.</label></div>
+<div class="row right"><button id="go" class="btn" disabled>Continue</button></div>`;
+const c=document.getElementById("ok"),b=document.getElementById("go");c.onchange=()=>b.disabled=!c.checked;b.onclick=()=>background();
+}
+
+function background(){
+progress(8);
+app.innerHTML=`
+<h2>Participant information</h2>
+<p class="muted small">Use a study code only. Do not enter names, email addresses, phone numbers, or other identifying information.</p>
+<div class="field"><label>Participant code</label><input id="pid" type="text" maxlength="12" placeholder="P001" autocomplete="off"></div>
+<div class="field"><label>Age</label><input id="age" type="number" min="18" max="99"></div>
+<div class="field"><label>Highest/current education</label><select id="edu"><option value="">Select</option><option>Undergraduate</option><option>Postgraduate</option><option>Doctoral</option><option>Other</option></select></div>
+<div class="field"><label>Comfort reading academic English</label><select id="eng"><option value="">Select</option><option>1 – Very low</option><option>2 – Low</option><option>3 – Moderate</option><option>4 – High</option><option>5 – Very high</option></select></div>
+<div class="field"><label>Generative-AI use in the past month</label><select id="aiu"><option value="">Select</option><option>Never</option><option>Rarely</option><option>Sometimes</option><option>Often</option><option>Very often</option></select></div>
+<div class="row right"><button id="go" class="btn">Continue</button></div>`;
+document.getElementById("go").onclick=()=>{
+const pid=document.getElementById("pid").value.trim(),age=document.getElementById("age").value;
+if(!/^[A-Za-z0-9_-]{2,12}$/.test(pid)){alert("Use a study code such as P001.");return}
+if(!/^[0-9]{1,2}$/.test(age)||+age<18||+age>99){alert("Enter a valid age from 18 to 99.");return}
+if(!document.getElementById("edu").value||!document.getElementById("eng").value||!document.getElementById("aiu").value){alert("Please complete all fields.");return}
+S.pid=pid;S.age=age;S.education=document.getElementById("edu").value;S.english=document.getElementById("eng").value;S.aiUse=document.getElementById("aiu").value;
+instructions();
+};
+}
+
+function instructions(){
+progress(13);
+app.innerHTML=`
+<h2>Instructions</h2>
+<p>For each problem, decide whether the conclusion follows logically from the premises. Ignore outside knowledge and focus on the stated relationships.</p>
+<p><strong>Entailment:</strong> the conclusion follows from the premises.</p>
+<p><strong>Contradiction:</strong> the conclusion does not follow and is incompatible with the stated relationships.</p>
+<p>First, give your own answer and rate your confidence from 1 to 6. On some trials, a standardized AI advisor will then provide <strong>reasoning guidance without stating the answer directly</strong>. You will reconsider your response and give your final answer and confidence.</p>
+<p><strong>Confidence:</strong> 1 = very unsure; 6 = very sure.</p>
+<p>The practice trials are not included in the research data.</p>
+<div class="row right"><button id="go" class="btn">Start practice</button></div>`;
+document.getElementById("go").onclick=()=>{S.screen="practice";S.i=0;practice()};
+}
+
+function practice(){
+progress(20);
+const p=PRACTICE[S.i];
+app.innerHTML=`
+<div class="progress-note"><span class="muted small">Practice ${S.i+1} of ${PRACTICE.length}</span></div>
+<h2>Practice</h2>
+<div class="stimulus"><div class="premises">${esc(p.premises)}</div><div class="conclusion"><strong>Conclusion:</strong> ${esc(p.conclusion)}</div></div>
+<h3>Does the conclusion follow?</h3>
+<div class="grid"><div class="choice"><input id="e" name="a" type="radio" value="entailment"><label for="e">Entailment</label></div><div class="choice"><input id="c" name="a" type="radio" value="contradiction"><label for="c">Contradiction</label></div></div>
+<div class="row right" style="margin-top:20px"><button id="go" class="btn">Check</button></div>`;
+document.getElementById("go").onclick=()=>{
+const a=document.querySelector('input[name="a"]:checked');if(!a){alert("Choose an answer.");return}
+app.innerHTML=`<h2>Practice feedback</h2><div class="success">Correct answer: <strong>${answerLabel(p.gold)}</strong></div><div class="row right" style="margin-top:18px"><button id="go" class="btn">${S.i+1<PRACTICE.length?"Next":"Begin experiment"}</button></div>`;
+document.getElementById("go").onclick=()=>{if(S.i+1<PRACTICE.length){S.i++;practice()}else{prepareTrials();S.i=0;trial()}};
+};
+}
+
+function prepareTrials(){
+  // Use the supplied 20-item audit file as the source of truth.
+  // Condition allocation is constrained within each experimental cell and
+  // reversed by participant code for counterbalancing.
+  const seed=hash(S.pid), reverse=(seed%2===1), groups={};
+  STIMULI.forEach(x=>{(groups[x.cell]??=[]).push(x)});
+  let ai=new Set();
+  Object.keys(groups).sort().forEach((cell,k)=>{
+    let g=shuffle(groups[cell],seed+700+k);
+    let n=Math.floor(g.length/2);
+    g.slice(0,n).forEach(x=>ai.add(x.id));
+    if(g.length%2===1 && ((seed+k)%2===0)) ai.add(g[n].id);
+  });
+  S.trials=shuffle(STIMULI.map(x=>({...x,condition:(reverse?!ai.has(x.id):ai.has(x.id))?"AI":"NO_AI"})),seed+2026);
+
+  // Constrained order: no more than two identical conditions consecutively.
+  // If the first balanced shuffle violates the rule, retry deterministic seeds.
+  for(let attempt=0;attempt<200;attempt++){
+    const candidate=shuffle(S.trials,seed+4000+attempt);
+    let ok=true,run=1;
+    for(let i=1;i<candidate.length;i++){run=candidate[i].condition===candidate[i-1].condition?run+1:1;if(run>2){ok=false;break}}
+    if(ok){S.trials=candidate;break}
+  }
+}
+
+function trial(){
+progress(20+(S.i/S.trials.length)*72);
+const t=S.trials[S.i];S.trialStart=performance.now();
+app.innerHTML=`
+<div class="progress-note"><span class="muted small">Trial ${S.i+1} of ${S.trials.length}</span><span class="muted small">First judgment</span></div>
+<h2>Reasoning problem</h2>
+<div class="stimulus"><div class="premises">${esc(t.premises).replace(/\. /g,'.<br>')}</div><div class="conclusion"><strong>Conclusion:</strong> ${esc(t.conclusion)}</div></div>
+<h3>Your initial judgment</h3>
+<div class="grid"><div class="choice"><input id="e" name="a" type="radio" value="entailment"><label for="e">Entailment</label></div><div class="choice"><input id="c" name="a" type="radio" value="contradiction"><label for="c">Contradiction</label></div></div>
+<h3>Your initial confidence</h3>
+<div class="scale">${[1,2,3,4,5,6].map(n=>`<label><input name="conf" type="radio" value="${n}"><span>${n}</span></label>`).join("")}</div>
+<div class="row right" style="margin-top:21px"><button id="go" class="btn">Continue</button></div>`;
+document.getElementById("go").onclick=()=>{
+const a=document.querySelector('input[name="a"]:checked'),c=document.querySelector('input[name="conf"]:checked');if(!a||!c){alert("Select an answer and confidence.");return}
+const tr={...t,initialAnswer:a.value,initialConfidence:+c.value,initialRT:Math.round(performance.now()-S.trialStart)};
+if(t.condition==="AI") aiGuidance(tr); else finish(tr);
+};
+}
+
+function aiGuidance(tr){
+S.aiStart=performance.now();
+app.innerHTML=`
+<div class="progress-note"><span class="muted small">AI-assisted reasoning</span><span class="muted small">Reconsider your judgment</span></div>
+<h2>AI Advisor</h2>
+<div class="ai">
+<div class="aihead">Reasoning guidance</div>
+<div class="aiq">
+Before deciding, test whether the conclusion <strong>must</strong> be true whenever the premises are true.
+Try to construct a possible situation in which all the premises remain true but the conclusion is false.
+If such a counterexample is possible, the conclusion does not logically follow. If no counterexample is possible, reconsider whether the premises force the conclusion.
+</div>
+</div>
+<p class="muted">The advisor does not state the answer. Use the guidance to reconsider the original problem.</p>
+<div class="row right"><button id="go" class="btn">Reconsider</button></div>`;
+document.getElementById("go").onclick=()=>reconsider(tr);
+}
+
+function reconsider(tr){
+tr.revisionRT=Math.round(performance.now()-S.aiStart);
+app.innerHTML=`
+<h2>Reconsider your answer</h2>
+<div class="stimulus"><div class="premises">${esc(tr.premises).replace(/\. /g,'.<br>')}</div><div class="conclusion"><strong>Conclusion:</strong> ${esc(tr.conclusion)}</div></div>
+<p>After considering the AI guidance, what is your final judgment?</p>
+<div class="grid"><div class="choice"><input id="e" name="f" type="radio" value="entailment"><label for="e">Entailment</label></div><div class="choice"><input id="c" name="f" type="radio" value="contradiction"><label for="c">Contradiction</label></div></div>
+<div class="row right" style="margin-top:20px"><button id="go" class="btn">Continue</button></div>`;
+document.getElementById("go").onclick=()=>{
+const f=document.querySelector('input[name="f"]:checked');if(!f){alert("Choose your final judgment.");return}
+tr.finalAnswer=f.value;finalConfidence(tr);
+};
+}
+
+function finalConfidence(tr){
+app.innerHTML=`
+<h2>Final confidence</h2>
+<p>How confident are you in your final judgment?</p>
+<div class="scale">${[1,2,3,4,5,6].map(n=>`<label><input name="fc" type="radio" value="${n}"><span>${n}</span></label>`).join("")}</div>
+<div class="row right" style="margin-top:20px"><button id="go" class="btn">Continue</button></div>`;
+document.getElementById("go").onclick=()=>{
+const c=document.querySelector('input[name="fc"]:checked');if(!c){alert("Select final confidence.");return}
+tr.finalConfidence=+c.value;finish(tr);
+};
+}
+
+function finish(tr){
+if(tr.condition==="NO_AI"){
+  tr.aiAnswer="";tr.aiAdviceShown=0;tr.revisionDecision="NOT_APPLICABLE";tr.revisionRT="";
+  tr.finalAnswer=tr.initialAnswer;tr.finalConfidence=tr.initialConfidence;
+} else {tr.aiAdviceShown=1}
+tr.correctInitial=tr.initialAnswer===tr.gold?1:0;
+tr.correctFinal=tr.finalAnswer===tr.gold?1:0;
+tr.confidenceChange=tr.finalConfidence-tr.initialConfidence;
+tr.answerChanged=tr.finalAnswer!==tr.initialAnswer?1:0;
+tr.beneficialChange=(tr.condition==="AI"&&tr.correctInitial===0&&tr.correctFinal===1)?1:0;
+tr.harmfulChange=(tr.condition==="AI"&&tr.correctInitial===1&&tr.correctFinal===0)?1:0;
+S.trials[S.i]=tr;
+if(S.i<S.trials.length-1){S.i++;trial()}else complete();
+}
+
+function validate(){
+const e=[];if(S.trials.length!==20)e.push("Expected 20 trials.");
+const ids=S.trials.map(x=>x.id);if(new Set(ids).size!==ids.length)e.push("Duplicate stimulus ID.");
+S.trials.forEach((t,i)=>{
+ if(!["AI","NO_AI"].includes(t.condition))e.push("Invalid condition at "+(i+1));
+ if(!["entailment","contradiction"].includes(t.gold))e.push("Invalid gold answer at "+(i+1));
+ if(!["entailment","contradiction"].includes(t.initialAnswer))e.push("Missing initial answer at "+(i+1));
+ if(!Number.isInteger(t.initialConfidence)||t.initialConfidence<1||t.initialConfidence>6)e.push("Invalid initial confidence at "+(i+1));
+ if(!["entailment","contradiction"].includes(t.finalAnswer))e.push("Missing final answer at "+(i+1));
+ if(!Number.isInteger(t.finalConfidence)||t.finalConfidence<1||t.finalConfidence>6)e.push("Invalid final confidence at "+(i+1));
+ if(t.correctInitial!==(t.initialAnswer===t.gold?1:0))e.push("Initial accuracy mismatch at "+(i+1));
+ if(t.correctFinal!==(t.finalAnswer===t.gold?1:0))e.push("Final accuracy mismatch at "+(i+1));
+ if(t.confidenceChange!==t.finalConfidence-t.initialConfidence)e.push("Confidence change mismatch at "+(i+1));
+ if(t.condition==="NO_AI"&&(t.aiAdviceShown!==0||t.aiAnswer!==""))e.push("NO_AI contamination at "+(i+1));
+});
+return e;
+}
+
+function csv(){
+const cols=["participant_id","age","education","english","ai_use","session_start","trial_no","stimulus_id","phase","condition","experimental_cell","gold","content_type","mood","inference_type","conversion","atmosphere","initial_answer","initial_confidence","ai_guidance_shown","final_answer","final_confidence","correct_initial","correct_final","answer_changed","confidence_change","beneficial_change","harmful_change","initial_rt_ms","guidance_rt_ms"];
+const rows=[cols];
+S.trials.forEach((t,i)=>rows.push([S.pid,S.age,S.education,S.english,S.aiUse,S.sessionStart.toISOString(),i+1,t.id,"experimental",t.condition,t.cell,t.gold,t.contentType,t.mood,t.inferenceType,t.conversion,t.atmosphere,t.initialAnswer,t.initialConfidence,t.aiAdviceShown||0,t.finalAnswer,t.finalConfidence,t.correctInitial,t.correctFinal,t.answerChanged,t.confidenceChange,t.beneficialChange,t.harmfulChange,t.initialRT||"",t.revisionRT||""]));
+return rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
+}
+
+function download(){
+const blob=new Blob([csv()],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="AI_syllogistic_"+S.pid+"_"+new Date().toISOString().slice(0,10)+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+function complete(){
+progress(100);const errors=validate();
+const ai=S.trials.filter(t=>t.condition==="AI"),no=S.trials.filter(t=>t.condition==="NO_AI");
+const rate=a=>a.length?Math.round(100*a.reduce((s,t)=>s+t.correctFinal,0)/a.length):0;
+app.innerHTML=`
+<h1>Study completed</h1>
+${errors.length?`<div class="notice"><strong>Data-integrity warning.</strong> Do not use this session for analysis. ${esc(errors.join(" "))}</div>`:`<div class="success"><strong>Session integrity check passed.</strong> The data are ready for export.</div>`}
+<h2 style="margin-top:22px">Participant summary</h2>
+<p>No-AI final accuracy: <strong>${rate(no)}%</strong><br>AI-guidance final accuracy: <strong>${rate(ai)}%</strong></p>
+<p class="muted small">This is a research summary, not an individual psychological assessment.</p>
+<div class="notice"><strong>Important:</strong> Download the CSV before closing the page. This prototype stores the session locally in the browser and does not upload data to a server.</div>
+<div class="row" style="margin-top:18px"><button id="dl" class="btn" ${errors.length?"disabled":""}>Download research data</button></div>`;
+if(!errors.length)document.getElementById("dl").onclick=download;
+}
+
+consent();
+</script>
+</body>
+</html>
